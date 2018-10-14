@@ -31,6 +31,10 @@ class detrek {
 
 		//the type of data
 		string dataType;
+		
+		//the beam position
+		int beamX;
+		int beamY;
 
 		/**
  		  * the type of compression used for the entire image data, 
@@ -43,8 +47,12 @@ class detrek {
 
 		//the scan wavelength 
 		float scanWaveLength;
+
+		//input file name
+		string file;
 	
 	public:
+
 		//defalut constructor
 		detrek();
 		
@@ -53,7 +61,13 @@ class detrek {
 		
 		//deconstructor
 		~detrek();
+	
+		//read image header
+		void readHeader();
 		
+		//print image header inforamtion
+		void printHeaderInfo();
+	
 		//read rigaku image 
 		void readImage();
 

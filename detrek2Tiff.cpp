@@ -31,7 +31,9 @@ int main (int argc, char ** argv)
 	std::cout<<"Have fun with this program, good luck to you. from Yao-Wang. "<<std::endl;
 
 	detrek rigakuImg(fileName);
+	rigakuImg.printHeaderInfo();
 	rigakuImg.writeTifImage(outFileName);
 
 
-	return 0}
+	return 0;
+}
