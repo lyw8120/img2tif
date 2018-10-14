@@ -49,7 +49,7 @@ class detrek {
 		detrek();
 		
 		//constructor
-		detrek(char * in_file);
+		detrek(string in_file);
 		
 		//deconstructor
 		~detrek();
@@ -58,7 +58,7 @@ class detrek {
 		void readImage();
 
 		//write image data using the tiff format
-		void writeTifImage();
+		void writeTifImage(string outfile);
 
 };
 

@@ -1,0 +1,1 @@
+g++ -o detrek2Tiff detrek2Tiff.cpp detrek.cpp -std=c++11

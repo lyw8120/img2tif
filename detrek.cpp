@@ -11,8 +11,9 @@ detrek::detrek()
 {
 }
 
-detrek::detrek(char * in_file)
+detrek::detrek(string in_file)
 {
+	
 }
 
 detrek::~detrek()
@@ -23,7 +24,7 @@ void detrek::readImage()
 {
 }
 
-void detrek::writeTifImage()
+void detrek::writeTifImage(string outfile)
 {
 }
 
