@@ -30,18 +30,18 @@ class detrek {
 		int size2;
 
 		//the type of data
-		string dataType='';
+		string dataType;
 
 		/**
  		  * the type of compression used for the entire image data, 
  		  * currently is not supprot image data compression
  		  */
-		string compression='none';
+		string compression;
 
 		//the maximum value that a pixel an have 
 		int saturatedValue;
 
-		//the san wavelength 
+		//the scan wavelength 
 		float scanWaveLength;
 	
 	public:
