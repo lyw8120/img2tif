@@ -145,14 +145,26 @@ void detrek::readImage()
 		}
 		cout<<detrek::headerBytes<<endl;
 		fseek(myfile, detrek::headerBytes, SEEK_CUR);
-		long result = fread(tmp, sizeof(int32_t), byteSize, myfile);
 		
-	cout<<result<< " "<<byteSize<<endl;
-		if(result != byteSize)
+		for (int i=0 ; i<imgSize; i++)
 		{
-			fprintf(stderr, "cannot read data into buffer!\n");
-			exit(1);
+			signed char bytes[4];
+			int sum = 0;
+			while (fread(bytes, 4, 1, myfile) != 0)
+			{
+				sum += bytes[0] | (bytes[1] << 8 ) | (bytes[2]<<16) | (bytes[3]<<24);
+			}
+			cout<< sum << " ";
 		}
+		cout << endl;
+	
+//		long result = fread(tmp, sizeof(int32_t), byteSize, myfile);
+		
+//		if(result != byteSize)
+//		{
+//			fprintf(stderr, "cannot read data into buffer!\n");
+//			exit(1);
+//		}
 	
 		fclose(myfile);
 		memcpy(data, tmp, byteSize);
