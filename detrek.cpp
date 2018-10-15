@@ -6,10 +6,6 @@
  */
 
 #include "detrek.h"
-#include <fstream>
-#include <cctype>
-#include <cmath>
-using namespace std;
 
 detrek::detrek()
 {
@@ -18,20 +14,21 @@ detrek::detrek()
 detrek::detrek(string in_file)
 {
 	detrek::file=in_file;
-	readHeader();
-
+	detrek::readHeader();
+	detrek::readImage();
 	
 }
 
 detrek::~detrek()
 {
+	delete data;
 }
 
 
 void detrek::readHeader()
 {
 	string line;
-	ifstream myfile(file.c_str(), ios::in|ios::binary);
+	ifstream myfile(detrek::file.c_str(), ios::in|ios::binary);
 	if (myfile.is_open())
 	{
 		if (!myfile.eof())
@@ -47,74 +44,45 @@ void detrek::readHeader()
 					string value=line.substr(equalSign+1,len);
 					if(name=="HEADER_BYTES")
 					{
-				//		cout<<value<<endl;
-				//		cout<<line<<endl;
 						detrek::headerBytes=stoi(value);
-	//					cout<<detrek::headerBytes<<endl;
 					}
 					else if(name=="DIM")
 					{
-				//		cout<<value<<endl;
-				//		cout<<line<<endl;
 						detrek::imageDims=stoi(value);
-	//					cout<<detrek::imageDims<<endl;
 					}
 					else if (name=="Data_type")
 					{
-				//		cout<<value<<endl;
-				//		cout<<line<<endl;
 						detrek::dataType=value;
-	//					cout<<detrek::dataType<<endl;
 					}
 					else if (name=="SIZE1")
 					{
-				//		cout<<value<<endl;
-				//		cout<<line<<endl;
 						detrek::size1=stoi(value);
-	//					cout<<detrek::size1<<endl;
 					}
 					else if (name=="SIZE2")
 					{
-				//		cout<<value<<endl;
-				//		cout<<line<<endl;
 						detrek::size2=stoi(value);
-	//					cout<<detrek::size2<<endl;
 					}
 					else if (name=="SCAN_WAVELENGTH")
 					{
-				//		cout<<value<<endl;
-				//		cout<<line<<endl;
 						detrek::scanWaveLength=stof(value);
-	//					cout<<detrek::scanWaveLength<<endl;
 					}
 					else if (name=="PILT_SPATIAL_BEAM_POSITION")
 					{
 						std::size_t space=value.find_last_of(" ");
 						string beamX=value.substr(0,space);
 						string beamY=value.substr(space+1);
-				//		cout<<"value: "<<value<<endl;
-				//		cout<<"beamX: "<<beamX<<endl;
-				//		cout<<"beamY: "<<beamY<<endl;
-				//		cout<<"line: "<<line<<endl;
 						float beamXTmp=stof(beamX);
 						float beamYTmp=stof(beamY);
 						detrek::beamX=round(beamXTmp);
 						detrek::beamY=round(beamYTmp);
-	//					cout<<"beam position: "<<detrek::beamX<<" "<<detrek::beamY<<endl;
 					}
 					else if (name=="SATURATED_VALUE")
 					{
-				//		cout<<value<<endl;
-				//		cout<<line<<endl;
 						detrek::saturatedValue=stoi(value);
-	//					cout<<detrek::saturatedValue<<endl;
 					}
 					else if (name=="COMPRESSION")
 					{
-				//		cout<<value<<endl;
-				//		cout<<line<<endl;
 						detrek::compression=value;
-	//					cout<<detrek::compression<<endl;
 					}
 					else
 					{
@@ -149,6 +117,79 @@ cout<<"The scan wave length: "<<detrek::scanWaveLength<<endl;
 
 void detrek::readImage()
 {
+	ifstream myfile(detrek::file.c_str(), ios::in|ios::binary);
+	myfile.seekg(detrek::headerBytes);
+	int imgSize = detrek::beamX * detrek::beamY;
+
+	if (detrek::dataType=="long int" )
+	{
+		int byteSize = imgSize * 4 ;
+		int charSize = byteSize/8;
+		char * tmp = new char [charSize];
+		if(!tmp)
+		{
+			cout<<"memory error, cannot read image data into buffer!"<<endl;
+			exit(1);
+		}
+		myfile.read(tmp, charSize);	
+		
+		data = new int32_t [imgSize];
+		if (!data)
+		{
+			cout<<"cannot allocate memory for image."<<endl;
+			exit(1);
+		}
+			memcpy(data, tmp, byteSize);
+		delete tmp;
+	}
+//	else if (detrek::dataType=="unsigned long int")
+//	{
+//		unsigned long int * tmp = new unsigned long int[size];
+//		data = tmp;
+//		myfile.read((unsigned long int *)data, size);	
+//	}
+//	else if(detrek::dataType=="short int" )
+//	{
+//		short int * tmp = new short int [size];
+//		data = tmp;
+//		myfile.read((short int *)data, size);	
+//	}
+//	else if ( detrek::dataType=="unsigned short int")
+//	{
+//		unsigned short int * tmp = new unsigned short int [size];
+//		data = tmp;
+//		myfile.read((unsigned short int *)data, size);	
+//	}
+//	else if (detrek::dataType == "signed char")
+//	{
+//		signed char * tmp = new signed char [size];
+//		data = tmp;
+//		myfile.read((signed char *)data, size);	
+//	}
+//	else if (detrek::dataType == "unsigned char")
+//	{
+//		unsigned char * tmp = new unsigned char [size];
+//		data = tmp;
+//		myfile.read((unsigned char *)data, size);	
+//	}
+	else
+	{
+		cout <<"the data type is not supported!"<<endl;	
+	}
+	
+	myfile.close();	 
+}
+
+void detrek::printData()
+{
+	for (int i=0; i<detrek::beamX; i++)
+	{
+		for (int j=0; j<detrek::beamY; j++)
+		{
+			cout << data[i*detrek::beamX+j]<<" ";
+		}
+		cout <<endl;
+	}
 }
 
 void detrek::writeTifImage(string outfile)

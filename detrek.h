@@ -11,6 +11,12 @@
 
 #include <iostream>
 #include <string>
+#include <cstdint>
+#include <fstream>
+#include <cctype>
+#include <cmath>
+#include <cstring>
+
 
 using namespace std;
 
@@ -51,6 +57,9 @@ class detrek {
 		//input file name
 		string file;
 	
+		//image data
+		int32_t * data = NULL;
+
 	public:
 
 		//defalut constructor
@@ -70,6 +79,9 @@ class detrek {
 	
 		//read rigaku image 
 		void readImage();
+
+		//print rigaku image data
+		void printData();
 
 		//write image data using the tiff format
 		void writeTifImage(string outfile);
