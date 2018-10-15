@@ -15,7 +15,7 @@ detrek::detrek(string in_file)
 {
 	detrek::file=in_file;
 	detrek::readHeader();
-	detrek::readImage();
+//	detrek::readImage();
 	
 }
 
@@ -84,6 +84,10 @@ void detrek::readHeader()
 					{
 						detrek::compression=value;
 					}
+					else if (name=="BYTE_ORDER")
+					{
+						detrek::byteOrder=value;
+					}
 					else
 					{
 						continue;
@@ -113,35 +117,73 @@ cout<<"The beam position (in pixel): "<<detrek::beamX<<" "<<detrek::beamY<<endl;
 cout<<"Was data compressed? "<<detrek::compression<<endl;
 cout<<"The maximum value that a pixel can have: "<<detrek::saturatedValue<<endl;
 cout<<"The scan wave length: "<<detrek::scanWaveLength<<endl;
+cout<<"The byte order is : "<<detrek::byteOrder<<endl;
 }
 
 void detrek::readImage()
 {
-	ifstream myfile(detrek::file.c_str(), ios::in|ios::binary);
-	myfile.seekg(detrek::headerBytes);
-	int imgSize = detrek::beamX * detrek::beamY;
+	FILE * myfile=fopen(detrek::file.c_str(), "rb");
+	if (!myfile)
+	{
+		fprintf(stderr, "cannot open the file to read data.\n");
+		fclose(myfile);
+		exit(1);
+	}
 
+	int imgSize = detrek::beamX * detrek::beamY;
+	int byteSize = imgSize;
 	if (detrek::dataType=="long int" )
 	{
-		int byteSize = imgSize * 4 ;
-		int charSize = byteSize/8;
-		char * tmp = new char [charSize];
-		if(!tmp)
-		{
-			cout<<"memory error, cannot read image data into buffer!"<<endl;
-			exit(1);
-		}
-		myfile.read(tmp, charSize);	
-		
+		byteSize *= 4 ;
+		int32_t * tmp = new int32_t [imgSize];
 		data = new int32_t [imgSize];
-		if (!data)
+		if (!tmp || !data)
 		{
-			cout<<"cannot allocate memory for image."<<endl;
+			fprintf(stderr, "memory error when allocating memory for image data.\n");
+			fclose(myfile);
 			exit(1);
 		}
-			memcpy(data, tmp, byteSize);
+		cout<<detrek::headerBytes<<endl;
+		fseek(myfile, detrek::headerBytes, SEEK_CUR);
+		long result = fread(tmp, sizeof(int32_t), byteSize, myfile);
+		
+	cout<<result<< " "<<byteSize<<endl;
+		if(result != byteSize)
+		{
+			fprintf(stderr, "cannot read data into buffer!\n");
+			exit(1);
+		}
+	
+		fclose(myfile);
+		memcpy(data, tmp, byteSize);
+
 		delete tmp;
 	}
+//	ifstream myfile(detrek::file.c_str(), ios::in|ios::binary);
+//	myfile.seekg(detrek::headerBytes);
+//	int imgSize = detrek::beamX * detrek::beamY;
+//
+//	if (detrek::dataType=="long int" )
+//	{
+//		int byteSize = imgSize * 4 ;
+//		int charSize = byteSize/8;
+//		char * tmp = new char [charSize];
+//		if(!tmp)
+//		{
+//			cout<<"memory error, cannot read image data into buffer!"<<endl;
+//			exit(1);
+//		}
+//		myfile.read(tmp, charSize);	
+//		
+//		data = new int32_t [imgSize];
+//		if (!data)
+//		{
+//			cout<<"cannot allocate memory for image."<<endl;
+//			exit(1);
+//		}
+//			memcpy(data, tmp, byteSize);
+//		delete tmp;
+//	}
 //	else if (detrek::dataType=="unsigned long int")
 //	{
 //		unsigned long int * tmp = new unsigned long int[size];
@@ -177,7 +219,7 @@ void detrek::readImage()
 		cout <<"the data type is not supported!"<<endl;	
 	}
 	
-	myfile.close();	 
+//	myfile.close();	 
 }
 
 void detrek::printData()

@@ -54,6 +54,9 @@ class detrek {
 		//the scan wavelength 
 		float scanWaveLength;
 
+		//byte order
+		string byteOrder;
+
 		//input file name
 		string file;
 	
