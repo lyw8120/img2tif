@@ -130,131 +130,47 @@ void detrek::readImage()
 		exit(1);
 	}
 
-	int imgSize = detrek::beamX * detrek::beamY;
-	int byteSize = imgSize;
+	int imgSize = detrek::size1 * detrek::size2;
 	if (detrek::dataType=="long int" )
 	{
-		//byteSize *= 4 ;
-		//char * tmp = new char [byteSize];
 		data = new int32_t [imgSize];
-	//	data = (int32_t *) malloc(sizeof(int32_t) * imgSize);
-	//	if (!tmp || !data)
-	
 		if (!data)
 		{
 			fprintf(stderr, "memory error when allocating memory for image data.\n");
 			fclose(myfile);
 			exit(1);
 		}
-		cout<< "image size and byte size: "<<imgSize<< " "<<byteSize<<endl;
-		fseek(myfile, detrek::headerBytes, SEEK_CUR);
-	//	int pos=ftell(myfile);
-	//	cout<<"header end: "<<detrek::headerBytes<<" "<<pos<<endl;	
-	//long bytes = fread(tmp, sizeof(char), byteSize, myfile);
-	long intnum = fread(data, sizeof(int32_t), imgSize, myfile);
-	//cout << intnum << " "<<imgSize<<endl;
-	//for (int i=0; i<byteSize; i+=4)
-//	{
-	//	data[i/4] = tmp[0] | tmp[1] <<8 | tmp[2] << 16 | tmp[3] << 24;
-//		cout<<data[i/4]<<" ";
-//	}
-//	cout<<endl;
-	//	for (int i=0 ; i<imgSize; i++)
-	//	{
-	//		char bytes[4];
-	//		int32_t sum = 0;
-	//		while (fread(bytes, 4, 1, myfile) != 0)
-	//		{
-	//			sum = (bytes[0]<<0 | bytes[1] << 8 | bytes[2]<<16 | bytes[3]<<24);
-	//		}
-	//		cout<< sum << " ";
-	//	}
-	//	cout << endl;
-	
-//		long result = fread(tmp, sizeof(int32_t), byteSize, myfile);
 		
+		fseek(myfile, detrek::headerBytes, SEEK_CUR);
+
+		long intnum = fread(data, sizeof(int32_t), imgSize, myfile);
+	
 		if(intnum != imgSize)
 		{
-			fprintf(stderr, "cannot read data into buffer!\n");
+			fprintf(stderr, "cannot read data into buffer!\n the actual image size is not consistent with the information in image header.\n");
 			exit(1);
 		}
 	
 		fclose(myfile);
-		//memcpy(data, tmp, byteSize);
-
-		//delete tmp;
 	}
-//	ifstream myfile(detrek::file.c_str(), ios::in|ios::binary);
-//	myfile.seekg(detrek::headerBytes);
-//	int imgSize = detrek::beamX * detrek::beamY;
-//
-//	if (detrek::dataType=="long int" )
-//	{
-//		int byteSize = imgSize * 4 ;
-//		int charSize = byteSize/8;
-//		char * tmp = new char [charSize];
-//		if(!tmp)
-//		{
-//			cout<<"memory error, cannot read image data into buffer!"<<endl;
-//			exit(1);
-//		}
-//		myfile.read(tmp, charSize);	
-//		
-//		data = new int32_t [imgSize];
-//		if (!data)
-//		{
-//			cout<<"cannot allocate memory for image."<<endl;
-//			exit(1);
-//		}
-//			memcpy(data, tmp, byteSize);
-//		delete tmp;
-//	}
-//	else if (detrek::dataType=="unsigned long int")
-//	{
-//		unsigned long int * tmp = new unsigned long int[size];
-//		data = tmp;
-//		myfile.read((unsigned long int *)data, size);	
-//	}
-//	else if(detrek::dataType=="short int" )
-//	{
-//		short int * tmp = new short int [size];
-//		data = tmp;
-//		myfile.read((short int *)data, size);	
-//	}
-//	else if ( detrek::dataType=="unsigned short int")
-//	{
-//		unsigned short int * tmp = new unsigned short int [size];
-//		data = tmp;
-//		myfile.read((unsigned short int *)data, size);	
-//	}
-//	else if (detrek::dataType == "signed char")
-//	{
-//		signed char * tmp = new signed char [size];
-//		data = tmp;
-//		myfile.read((signed char *)data, size);	
-//	}
-//	else if (detrek::dataType == "unsigned char")
-//	{
-//		unsigned char * tmp = new unsigned char [size];
-//		data = tmp;
-//		myfile.read((unsigned char *)data, size);	
-//	}
+
 	else
 	{
-		cout <<"the data type is not supported!"<<endl;	
+		fprintf(stderr, "the data type is not supported!\n");	
+		exit(1);
+		fclose(myfile);	 
 	}
 	
-//	myfile.close();	 
 }
 
 void detrek::printData()
 {
-	cout << detrek::beamX << " "<<detrek::beamY<<endl;
-	for (int i=0; i<detrek::beamX; i++)
+	cout << detrek::size1 << " "<<detrek::size2<<endl;
+	for (int i=0; i<detrek::size1; i++)
 	{
-		for (int j=0; j<detrek::beamY; j++)
+		for (int j=0; j<detrek::size2; j++)
 		{
-			cout << data[i*detrek::beamX+j]<<" ";
+			cout << data[i*detrek::size1+j]<<" ";
 		}
 		cout <<endl;
 	}
@@ -262,6 +178,24 @@ void detrek::printData()
 
 void detrek::writeTifImage(string outfile)
 {
+	TIFF * tif = TIFFOpen(outfile.c_str(), "w");
+	if (!tif)
+	{
+		fprintf(stderr, "cannot open a tif file.");
+	}
+	
+    TIFFSetField(tif,TIFFTAG_IMAGEWIDTH,detrek::size1);
+    TIFFSetField(tif,TIFFTAG_IMAGELENGTH,detrek::size2);
+    TIFFSetField(tif,TIFFTAG_SAMPLESPERPIXEL,1);
+    TIFFSetField(tif,TIFFTAG_BITSPERSAMPLE,32);
+    TIFFSetField(tif,TIFFTAG_ORIENTATION,ORIENTATION_TOPLEFT);
+    TIFFSetField(tif, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
+
+    TIFFSetField(tif, TIFFTAG_COMPRESSION, COMPRESSION_PACKBITS);
+    TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_MINISBLACK);
+
+    TIFFWriteEncodedStrip(tif, 0, data, detrek::size1*detrek::size2*4);             
+    TIFFClose(tif);
 }
 
 

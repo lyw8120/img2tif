@@ -16,6 +16,7 @@
 #include <cctype>
 #include <cmath>
 #include <cstring>
+#include <tiffio.h>
 
 
 using namespace std;
