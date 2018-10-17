@@ -15,7 +15,7 @@ detrek::detrek(string in_file)
 {
 	detrek::file=in_file;
 	detrek::readHeader();
-//	detrek::readImage();
+	detrek::readImage();
 	
 }
 
@@ -134,42 +134,55 @@ void detrek::readImage()
 	int byteSize = imgSize;
 	if (detrek::dataType=="long int" )
 	{
-		byteSize *= 4 ;
-		int32_t * tmp = new int32_t [imgSize];
+		//byteSize *= 4 ;
+		//char * tmp = new char [byteSize];
 		data = new int32_t [imgSize];
-		if (!tmp || !data)
+	//	data = (int32_t *) malloc(sizeof(int32_t) * imgSize);
+	//	if (!tmp || !data)
+	
+		if (!data)
 		{
 			fprintf(stderr, "memory error when allocating memory for image data.\n");
 			fclose(myfile);
 			exit(1);
 		}
-		cout<<detrek::headerBytes<<endl;
+		cout<< "image size and byte size: "<<imgSize<< " "<<byteSize<<endl;
 		fseek(myfile, detrek::headerBytes, SEEK_CUR);
-		
-		for (int i=0 ; i<imgSize; i++)
-		{
-			signed char bytes[4];
-			int sum = 0;
-			while (fread(bytes, 4, 1, myfile) != 0)
-			{
-				sum += bytes[0] | (bytes[1] << 8 ) | (bytes[2]<<16) | (bytes[3]<<24);
-			}
-			cout<< sum << " ";
-		}
-		cout << endl;
+	//	int pos=ftell(myfile);
+	//	cout<<"header end: "<<detrek::headerBytes<<" "<<pos<<endl;	
+	//long bytes = fread(tmp, sizeof(char), byteSize, myfile);
+	long intnum = fread(data, sizeof(int32_t), imgSize, myfile);
+	//cout << intnum << " "<<imgSize<<endl;
+	//for (int i=0; i<byteSize; i+=4)
+//	{
+	//	data[i/4] = tmp[0] | tmp[1] <<8 | tmp[2] << 16 | tmp[3] << 24;
+//		cout<<data[i/4]<<" ";
+//	}
+//	cout<<endl;
+	//	for (int i=0 ; i<imgSize; i++)
+	//	{
+	//		char bytes[4];
+	//		int32_t sum = 0;
+	//		while (fread(bytes, 4, 1, myfile) != 0)
+	//		{
+	//			sum = (bytes[0]<<0 | bytes[1] << 8 | bytes[2]<<16 | bytes[3]<<24);
+	//		}
+	//		cout<< sum << " ";
+	//	}
+	//	cout << endl;
 	
 //		long result = fread(tmp, sizeof(int32_t), byteSize, myfile);
 		
-//		if(result != byteSize)
-//		{
-//			fprintf(stderr, "cannot read data into buffer!\n");
-//			exit(1);
-//		}
+		if(intnum != imgSize)
+		{
+			fprintf(stderr, "cannot read data into buffer!\n");
+			exit(1);
+		}
 	
 		fclose(myfile);
-		memcpy(data, tmp, byteSize);
+		//memcpy(data, tmp, byteSize);
 
-		delete tmp;
+		//delete tmp;
 	}
 //	ifstream myfile(detrek::file.c_str(), ios::in|ios::binary);
 //	myfile.seekg(detrek::headerBytes);
@@ -236,6 +249,7 @@ void detrek::readImage()
 
 void detrek::printData()
 {
+	cout << detrek::beamX << " "<<detrek::beamY<<endl;
 	for (int i=0; i<detrek::beamX; i++)
 	{
 		for (int j=0; j<detrek::beamY; j++)

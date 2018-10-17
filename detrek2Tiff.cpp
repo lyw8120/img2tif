@@ -33,7 +33,7 @@ int main (int argc, char ** argv)
 	detrek rigakuImg(fileName);
 	rigakuImg.printHeaderInfo();
 	rigakuImg.printData();
-	rigakuImg.writeTifImage(outFileName);
+//	rigakuImg.writeTifImage(outFileName);
 
 
 	return 0;
