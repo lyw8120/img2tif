@@ -16,7 +16,6 @@ detrek::detrek(string in_file)
 	detrek::file=in_file;
 	detrek::readHeader();
 	detrek::readImage();
-	
 }
 
 detrek::~detrek()
@@ -174,6 +173,26 @@ void detrek::printData()
 		}
 		cout <<endl;
 	}
+}
+
+void detrek::cutCenterBlank()
+{
+	int oriImageSize = detrek::size1 * detrek::size2;
+	int imageSize = detrek::size1 * (detrek::size2 - 17);
+	int blankSize = 17 * detrek::size1;
+	int imageBlock = imageSize/2;
+	int32_t * dataWithoutStrip = new int32_t [imageSize];	
+	for ( int i=0; i<imageBlock; i++)
+	{
+		dataWithoutStrip[i] = data[i];
+		dataWithoutStrip[i+imageBlock] = data[i+imageBlock+blankSize];
+	}
+
+//	memcpy(dataWithoutStrip, data, imageBlock*4);
+//	memcpy(dataWithoutStrip[imageBlock], data[imageBlock+17*detrek::size1], imageBlock*4);
+	delete data;
+	data = dataWithoutStrip;
+	detrek::size2 -= 17;
 }
 
 void detrek::writeTifImage(string outfile)

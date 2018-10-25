@@ -87,6 +87,9 @@ class detrek {
 		//print rigaku image data
 		void printData();
 
+		//cut the center blank area. 17x484
+		void cutCenterBlank();
+
 		//write image data using the tiff format
 		void writeTifImage(string outfile);
 
