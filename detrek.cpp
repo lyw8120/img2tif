@@ -16,11 +16,13 @@ detrek::detrek(string in_file)
 	detrek::file=in_file;
 	detrek::readHeader();
 	detrek::readImage();
+	detrek::imageSize = detrek::size1 * detrek::size2;
 }
 
 detrek::~detrek()
 {
 	delete data;
+	delete mask;
 }
 
 
@@ -177,11 +179,10 @@ void detrek::printData()
 
 void detrek::cutCenterBlank()
 {
-	int oriImageSize = detrek::size1 * detrek::size2;
-	int imageSize = detrek::size1 * (detrek::size2 - 17);
+	int imageSizeWithoutBlank = detrek::size1 * (detrek::size2 - 17);
 	int blankSize = 17 * detrek::size1;
-	int imageBlock = imageSize/2;
-	int32_t * dataWithoutStrip = new int32_t [imageSize];	
+	int imageBlock = imageSizeWithoutBlank/2;
+	int32_t * dataWithoutStrip = new int32_t [imageSizeWithoutBlank];	
 	for ( int i=0; i<imageBlock; i++)
 	{
 		dataWithoutStrip[i] = data[i];
@@ -193,6 +194,142 @@ void detrek::cutCenterBlank()
 	delete data;
 	data = dataWithoutStrip;
 	detrek::size2 -= 17;
+}
+
+
+void detrek::maskBeamAndGap()
+{
+	mask = new bool [detrek::imageSize];
+	for (int i=0 ;i<detrek::imageSize; i++)
+	{
+		mask[i] = false;
+	}
+
+	for (int i=0; i<detrek::size2; i++)
+	for (int j=0; j<detrek::size1; j++)
+	{
+		if(data[i*detrek::size1+j] <3)
+		{
+			mask[i*detrek::size1+j] = true;
+		}
+	}
+//	for (int i=0; i<detrek::size2; i++)
+//	{
+//		for (int j=0; j<detrek::size1; j++)
+//		{
+//		cout<<	mask[i*detrek::size1+j] <<" ";
+//		}
+//		cout<<endl;
+//	}
+
+//	int startRow = (detrek::size2 - 17)/2 - 1;
+//	int endRow = startRow + 17;
+	
+//	for (int i=startRow; i<endRow; i++)
+//	for (int j=0; j<detrek::size2; j++)
+//	{
+//		mask[i*detrek::size1+j] = true;
+//	}	
+	
+//	vector<vector<int>> beamStop;
+//	vector<int> tmp(2,0);
+//	for (int i=0; i<(startRow+1); i++)
+//	{
+///		float std1 = 0;
+//		float std2 = 0;
+//		int startPoint = 0;
+//		int endPoint = 0;
+//		for (int j=0; j<detrek::size1 - 5; j++)
+//		{
+//			int pos = i*detrek::size1+j;
+//			int x0 = data[pos];
+//			int x1 = data[pos+1];
+//			int x2 = data[pos+2];
+//			int x3 = data[pos+3];
+//			int x4 = data[pos+4];
+//			int x5 = data[pos+5];
+//			float mean = (x0 + x1 + x2 + x3 + x4 + x5)/5;
+		//	float std = ((x0-mean) + (x1-mean) + (x2-mean))/3;
+			
+		//	if( std>std1) 
+		//	{
+		//		std1=std;
+		//		if( (abs(x2 -x1) > abs(x1-x0))&& (x2<5) && x3<5 && x4<5 &&x5<5)
+		//		{
+		//			startPoint = pos+2;
+		//		}
+		//		if ((abs(x2-x1) < abs(x1-x0))&&(x0<5))	
+		//		{
+		//		 	endPoint = pos;
+		//		}
+		//	}
+		///	if(std1>std2)
+		//	{
+		//		std=std2;
+		//		std2=std1;
+		//		std1=std;
+		//	}
+				
+		//	tmp[0] = startPoint;
+		//	tmp[1] = endPoint;
+	//	}
+		
+//			if ( mean<3 && x0>5 && x1<5&&x2<5&&x3<5&&x4<5&&x4<5)
+//			{
+//				tmp[0] = pos;
+//			}
+//			if (mean<3 && x0<5 && x1<5&&x2<5&&x3<5&&x4<5&&x4>5)
+//			{
+//				tmp[1] = pos+4;
+//			}	
+//		}
+//		beamStop.push_back(tmp);
+//		tmp[0]=tmp[1]=0;
+//	}
+	
+//	for(int i=0; i<detrek::size1; i++)
+//	{
+//	//	cout<<data[i]<< " ";
+//	}
+//	cout<<endl;
+
+		
+//	for (int i=0; i<beamStop.size(); i++)
+//	{
+//		cout<<beamStop[i][0]<<" "<<beamStop[i][1]<<endl;
+//	}
+//	cout<<beamStop.size()<<endl;
+}
+
+void detrek::convert()
+{
+	int maxRadius = 0;
+	beamX > beamY ? maxRadius = beamY : maxRadius = beamX;
+	float r = 0;
+	vector<vector<float>> oneDimData(maxRadius,vector<float>(2,0));
+
+	for (int i=0; i<detrek::size2; i++)
+	for (int j=0; j<detrek::size1; j++)
+	{
+		r = sqrt((j-beamX)*(j-beamX) + (i-beamY) * (i-beamY));
+		if (r < maxRadius && !mask[i*detrek::size1+j])
+		{
+			oneDimData[r][0] += data[i*detrek::size1+j];
+			oneDimData[r][1] += 1;
+		}
+	
+	}
+	
+	for (int i=0; i<oneDimData.size(); i++)
+	{
+		oneDimData[i][0] /= oneDimData[i][1];
+	}
+	
+	for (int i=0; i<oneDimData.size(); i++)
+	{
+		cout<<oneDimData[i][0]<< " ";
+	}
+	cout<<endl;
 }
 
 void detrek::writeTifImage(string outfile)

@@ -3,6 +3,17 @@
   * @email: liyaowang2911@gmail.com
   * @version 0.1
   * @brief header file for class detrek
+  *
+  * 		    size1
+  * 		------------------------------>
+  *		   |
+  * size2  |
+  *   	   |
+  *    	   |
+  *    	   |
+  *    	   |
+  *    	   |
+  *    	   V
  */
 
 
@@ -17,6 +28,7 @@
 #include <cmath>
 #include <cstring>
 #include <tiffio.h>
+#include <vector>
 
 
 using namespace std;
@@ -35,6 +47,12 @@ class detrek {
 
 		//the number of pixels along the second direction
 		int size2;
+
+		//imagesize
+		int imageSize;
+	
+		//gap length 
+		int gapLength = 17;
 
 		//the type of data
 		string dataType;
@@ -64,6 +82,9 @@ class detrek {
 		//image data
 		int32_t * data = NULL;
 
+		//mask for beam stop and the gap between detectors
+		bool * mask = NULL;
+
 	public:
 
 		//defalut constructor
@@ -89,6 +110,12 @@ class detrek {
 
 		//cut the center blank area. 17x484
 		void cutCenterBlank();
+	
+		//mask the beam stop and gap
+		void maskBeamAndGap();
+	
+		//convert 2D image to 1D conventional powder diffraction data
+		void convert();
 
 		//write image data using the tiff format
 		void writeTifImage(string outfile);
