@@ -1,0 +1,1 @@
+g++ -o detrekRemoveBlank detrekRemoveBlank.cpp detrek.cpp -std=c++11 -ltiff
