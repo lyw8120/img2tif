@@ -67,15 +67,35 @@ void detrek::readHeader()
 					{
 						detrek::scanWaveLength=stof(value);
 					}
-					else if (name=="PILT_SPATIAL_BEAM_POSITION")
+		//			else if (name=="PILT_SPATIAL_BEAM_POSITION")
+		//			{
+		//				std::size_t space=value.find_last_of(" ");
+		//				string beamX=value.substr(0,space);
+		//				string beamY=value.substr(space+1);
+		//				float beamXTmp=stof(beamX);
+		//				float beamYTmp=stof(beamY);
+		//				detrek::beamX=beamXTmp;
+		//				detrek::beamY=beamYTmp;
+		//			}
+					else if (name =="PILT_SPATIAL_DISTORTION_INFO")
 					{
-						std::size_t space=value.find_last_of(" ");
-						string beamX=value.substr(0,space);
-						string beamY=value.substr(space+1);
-						float beamXTmp=stof(beamX);
-						float beamYTmp=stof(beamY);
-						detrek::beamX=round(beamXTmp);
-						detrek::beamY=round(beamYTmp);
+						stringstream ss;
+						ss.str(value);
+						string s1, s2,s3,s4;
+						ss>>s1>>s2>>s3>>s4;
+						detrek::beamX = stof(s1);
+						detrek::beamY = stof(s2);
+						detrek::pixelSizeX = stof(s3);
+						detrek::pixelSizeY = stof(s4);
+						
+					}
+					else if (name == "PILT_GONIO_VALUES")
+					{
+						stringstream ss;
+						ss.str(value);
+						string s1, s2, s3, s4,s5,s6;
+						ss>>s1>>s2>>s3>>s4>>s5>>s6;
+						detrek::distance = stof(s6);
 					}
 					else if (name=="SATURATED_VALUE")
 					{
@@ -115,7 +135,9 @@ cout<<"The number of pixels in the first dimension: "<<detrek::size1<<endl;
 cout<<"The number of pixels in the second dimension: "<<detrek::size2<<endl; 
 cout<<"Image data type: "<<detrek::dataType<<endl;
 cout<<"The beam position (in pixel): "<<detrek::beamX<<" "<<detrek::beamY<<endl;
+cout<<"The pixel size in X and Y directions (mm/pixel): "<<detrek::pixelSizeX<<" "<<detrek::pixelSizeY<<endl;
 cout<<"Was data compressed? "<<detrek::compression<<endl;
+cout<<"Distance between sample and detector (in mm): "<<detrek::distance<<endl;
 cout<<"The maximum value that a pixel can have: "<<detrek::saturatedValue<<endl;
 cout<<"The scan wave length: "<<detrek::scanWaveLength<<endl;
 cout<<"The byte order is : "<<detrek::byteOrder<<endl;
@@ -301,18 +323,29 @@ void detrek::maskBeamAndGap()
 //	cout<<beamStop.size()<<endl;
 }
 
+float detrek::calculateDValue(int numOfpixels)
+{
+	float d=0.0;
+	double theta = 0.0;
+	theta = atan(numOfpixels * detrek::pixelSizeX / detrek::distance)/2;
+	d = detrek::scanWaveLength / (2 * sin(theta));
+	return d;
+}
+
 void detrek::convert()
 {
+	//int maxRadius = round(sqrt(beamX*beamX+beamY*beamY));
 	int maxRadius = 0;
-	beamX > beamY ? maxRadius = beamY : maxRadius = beamX;
-	float r = 0;
-	vector<vector<float>> oneDimData(maxRadius,vector<float>(2,0));
+	beamX > beamY ? maxRadius = ceil(beamX): maxRadius = ceil(beamY);
+	cout << maxRadius<<endl;
+	int r = 0;
+	vector<vector<float>> oneDimData(maxRadius+1,vector<float>(2,0));
 
 	for (int i=0; i<detrek::size2; i++)
 	for (int j=0; j<detrek::size1; j++)
 	{
-		r = sqrt((j-beamX)*(j-beamX) + (i-beamY) * (i-beamY));
-		if (r < maxRadius && !mask[i*detrek::size1+j])
+		r = round(sqrt((j-detrek::beamX)*(j-detrek::beamX) + (i-detrek::beamY) * (i-detrek::beamY)));
+		if (r <= maxRadius && !mask[i*detrek::size1+j])
 		{
 			oneDimData[r][0] += data[i*detrek::size1+j];
 			oneDimData[r][1] += 1;
@@ -326,8 +359,8 @@ void detrek::convert()
 	}
 	
 	for (int i=0; i<oneDimData.size(); i++)
-	{
-		cout<<oneDimData[i][0]<< " ";
+	{	
+		cout<<1/detrek::calculateDValue(i)<< "\t"<<oneDimData[i][0]<< endl;
 	}
 	cout<<endl;
 }

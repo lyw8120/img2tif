@@ -29,6 +29,7 @@
 #include <cstring>
 #include <tiffio.h>
 #include <vector>
+#include <sstream>
 
 
 using namespace std;
@@ -58,8 +59,15 @@ class detrek {
 		string dataType;
 		
 		//the beam position
-		int beamX;
-		int beamY;
+		float beamX;
+		float beamY;
+	
+		//pixel size (mm/pixel) in x and y direction
+		float pixelSizeX;
+		float pixelSizeY;
+
+		//distance between sample and detector
+		float distance;
 
 		/**
  		  * the type of compression used for the entire image data, 
@@ -104,6 +112,9 @@ class detrek {
 	
 		//read rigaku image 
 		void readImage();
+	
+		//calculate the d spacing 
+		float calculateDValue(int numOfpixels);
 
 		//print rigaku image data
 		void printData();
