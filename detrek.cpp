@@ -345,7 +345,7 @@ void detrek::convert()
 	for (int j=0; j<detrek::size1; j++)
 	{
 		r = round(sqrt((j-detrek::beamX)*(j-detrek::beamX) + (i-detrek::beamY) * (i-detrek::beamY)));
-		if (r <= maxRadius && !mask[i*detrek::size1+j])
+		if (r <= maxRadius && r>5 && !mask[i*detrek::size1+j])
 		{
 			oneDimData[r][0] += data[i*detrek::size1+j];
 			oneDimData[r][1] += 1;
@@ -353,10 +353,10 @@ void detrek::convert()
 	
 	}
 	
-	for (int i=0; i<oneDimData.size(); i++)
-	{
-		oneDimData[i][0] /= oneDimData[i][1];
-	}
+//	for (int i=0; i<oneDimData.size(); i++)
+//	{
+//		oneDimData[i][0] /= oneDimData[i][1];
+//	}
 	
 	for (int i=0; i<oneDimData.size(); i++)
 	{	
