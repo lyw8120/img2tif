@@ -353,10 +353,14 @@ void detrek::convert()
 	
 	}
 	
-//	for (int i=0; i<oneDimData.size(); i++)
-//	{
-//		oneDimData[i][0] /= oneDimData[i][1];
-//	}
+	for (int i=0; i<oneDimData.size(); i++)
+	{
+                if(oneDimData[i][1]>0)
+                {
+		    oneDimData[i][0] /= oneDimData[i][1];
+                }
+
+	} 
 	
 	for (int i=0; i<oneDimData.size(); i++)
 	{	
