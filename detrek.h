@@ -94,6 +94,8 @@ class detrek {
 		bool * mask = NULL;
 
 	public:
+                //Powder data
+                vector<vector<float>> powderData;
 
 		//defalut constructor
 		detrek();
@@ -130,6 +132,9 @@ class detrek {
 
 		//write image data using the tiff format
 		void writeTifImage(string outfile);
+
+                //print powder data
+                void printPowderData();
 
 };
 

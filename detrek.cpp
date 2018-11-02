@@ -337,9 +337,9 @@ void detrek::convert()
 	//int maxRadius = round(sqrt(beamX*beamX+beamY*beamY));
 	int maxRadius = 0;
 	beamX > beamY ? maxRadius = ceil(beamX): maxRadius = ceil(beamY);
-	cout << maxRadius<<endl;
+	//cout << maxRadius<<endl;
 	int r = 0;
-	vector<vector<float>> oneDimData(maxRadius+1,vector<float>(2,0));
+	vector<vector<float>> oneDimData(maxRadius+1,vector<float>(3,0));
 
 	for (int i=0; i<detrek::size2; i++)
 	for (int j=0; j<detrek::size1; j++)
@@ -347,8 +347,8 @@ void detrek::convert()
 		r = round(sqrt((j-detrek::beamX)*(j-detrek::beamX) + (i-detrek::beamY) * (i-detrek::beamY)));
 		if (r <= maxRadius && r>5 && !mask[i*detrek::size1+j])
 		{
-			oneDimData[r][0] += data[i*detrek::size1+j];
-			oneDimData[r][1] += 1;
+			oneDimData[r][1] += data[i*detrek::size1+j];
+			oneDimData[r][2] += 1;
 		}
 	
 	}
@@ -357,17 +357,24 @@ void detrek::convert()
 	{
                 if(oneDimData[i][1]>0)
                 {
-		    oneDimData[i][0] /= oneDimData[i][1];
+	            oneDimData[i][1] /= oneDimData[i][2];
                 }
+                oneDimData[i][0] = 1/detrek::calculateDValue(i);
 
 	} 
 	
-	for (int i=0; i<oneDimData.size(); i++)
-	{	
-		cout<<1/detrek::calculateDValue(i)<< "\t"<<oneDimData[i][0]<< endl;
-	}
+        detrek::powderData = oneDimData;
+}
+
+void detrek::printPowderData()
+{
+      for (int i=0; i<detrek::powderData.size(); i++)
+      {
+	  cout<<detrek::powderData[i][0]<< "\t"<<detrek::powderData[i][1]<< endl;
+      }
 	cout<<endl;
 }
+
 
 void detrek::writeTifImage(string outfile)
 {

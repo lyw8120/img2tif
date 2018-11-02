@@ -1,0 +1,1 @@
+g++ -o detrekPowderPeaksInt detrekPowderPeaksInt.cpp detrek.cpp functions.cpp -std=c++11 -ltiff

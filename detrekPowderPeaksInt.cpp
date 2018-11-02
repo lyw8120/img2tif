@@ -8,6 +8,7 @@
 
 #include <cstdlib>
 #include "detrek.h"
+#include "functions.h"
 
 int main (int argc, char ** argv)
 {
@@ -35,7 +36,11 @@ int main (int argc, char ** argv)
 	//rigakuImg.printHeaderInfo();
 	rigakuImg.maskBeamAndGap();
 	rigakuImg.convert();
-	rigakuImg.printPowderData();
+       // rigakuImg.printPowderData();
+        
+        vector<float> slopeValues;
+        slope(rigakuImg.powderData, slopeValues);
+
 
 
 	return 0;

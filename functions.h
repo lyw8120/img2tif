@@ -13,11 +13,12 @@
 #include <string>
 #include <cstdint>
 #include <cmath>
+#include <vector>
 
 
 using namespace std;
 
-void slope(vector<float,2> in, vector<float> out);
+void slope(const vector<vector<float>> & in, vector<float> & out);
 
 
 #endif

@@ -8,13 +8,17 @@
 #include "functions.h"
 
 
-void slope(vector<float,2> in, vector<float> out)
-{
-	
-	for (int i=0; i<in.size()-1; i++)
+void slope(const vector<vector<float>> &in, vector<float> & out)
+{	
+      int n=in.size() -1 ;
+      vector<float> tmp (n,0);
+
+	for (int i=0; i<n; i++)
 	{
-		out[i] = (in[i+1][1] - in[i][1])/(in[i+1][0]-in[i][0]); 
+		tmp[i] = (in[i+1][1] - in[i][1])/double(in[i+1][0]-in[i][0]); 
+                cout << tmp[i]<<endl;
 	}
+        out = tmp;
 }
 
 
