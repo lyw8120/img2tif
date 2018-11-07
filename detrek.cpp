@@ -67,16 +67,6 @@ void detrek::readHeader()
 					{
 						detrek::scanWaveLength=stof(value);
 					}
-		//			else if (name=="PILT_SPATIAL_BEAM_POSITION")
-		//			{
-		//				std::size_t space=value.find_last_of(" ");
-		//				string beamX=value.substr(0,space);
-		//				string beamY=value.substr(space+1);
-		//				float beamXTmp=stof(beamX);
-		//				float beamYTmp=stof(beamY);
-		//				detrek::beamX=beamXTmp;
-		//				detrek::beamY=beamYTmp;
-		//			}
 					else if (name =="PILT_SPATIAL_DISTORTION_INFO")
 					{
 						stringstream ss;
@@ -235,92 +225,6 @@ void detrek::maskBeamAndGap()
 			mask[i*detrek::size1+j] = true;
 		}
 	}
-//	for (int i=0; i<detrek::size2; i++)
-//	{
-//		for (int j=0; j<detrek::size1; j++)
-//		{
-//		cout<<	mask[i*detrek::size1+j] <<" ";
-//		}
-//		cout<<endl;
-//	}
-
-//	int startRow = (detrek::size2 - 17)/2 - 1;
-//	int endRow = startRow + 17;
-	
-//	for (int i=startRow; i<endRow; i++)
-//	for (int j=0; j<detrek::size2; j++)
-//	{
-//		mask[i*detrek::size1+j] = true;
-//	}	
-	
-//	vector<vector<int>> beamStop;
-//	vector<int> tmp(2,0);
-//	for (int i=0; i<(startRow+1); i++)
-//	{
-///		float std1 = 0;
-//		float std2 = 0;
-//		int startPoint = 0;
-//		int endPoint = 0;
-//		for (int j=0; j<detrek::size1 - 5; j++)
-//		{
-//			int pos = i*detrek::size1+j;
-//			int x0 = data[pos];
-//			int x1 = data[pos+1];
-//			int x2 = data[pos+2];
-//			int x3 = data[pos+3];
-//			int x4 = data[pos+4];
-//			int x5 = data[pos+5];
-//			float mean = (x0 + x1 + x2 + x3 + x4 + x5)/5;
-		//	float std = ((x0-mean) + (x1-mean) + (x2-mean))/3;
-			
-		//	if( std>std1) 
-		//	{
-		//		std1=std;
-		//		if( (abs(x2 -x1) > abs(x1-x0))&& (x2<5) && x3<5 && x4<5 &&x5<5)
-		//		{
-		//			startPoint = pos+2;
-		//		}
-		//		if ((abs(x2-x1) < abs(x1-x0))&&(x0<5))	
-		//		{
-		//		 	endPoint = pos;
-		//		}
-		//	}
-		///	if(std1>std2)
-		//	{
-		//		std=std2;
-		//		std2=std1;
-		//		std1=std;
-		//	}
-				
-		//	tmp[0] = startPoint;
-		//	tmp[1] = endPoint;
-	//	}
-		
-//			if ( mean<3 && x0>5 && x1<5&&x2<5&&x3<5&&x4<5&&x4<5)
-//			{
-//				tmp[0] = pos;
-//			}
-//			if (mean<3 && x0<5 && x1<5&&x2<5&&x3<5&&x4<5&&x4>5)
-//			{
-//				tmp[1] = pos+4;
-//			}	
-//		}
-//		beamStop.push_back(tmp);
-//		tmp[0]=tmp[1]=0;
-//	}
-	
-//	for(int i=0; i<detrek::size1; i++)
-//	{
-//	//	cout<<data[i]<< " ";
-//	}
-//	cout<<endl;
-
-		
-//	for (int i=0; i<beamStop.size(); i++)
-//	{
-//		cout<<beamStop[i][0]<<" "<<beamStop[i][1]<<endl;
-//	}
-//	cout<<beamStop.size()<<endl;
 }
 
 float detrek::calculateDValue(int numOfpixels)
@@ -345,7 +249,8 @@ void detrek::convert()
 	for (int j=0; j<detrek::size1; j++)
 	{
 		r = round(sqrt((j-detrek::beamX)*(j-detrek::beamX) + (i-detrek::beamY) * (i-detrek::beamY)));
-		if (r <= maxRadius && r>5 && !mask[i*detrek::size1+j])
+		//r must be larger than 25, which to skip the beam center.
+		if (r <= maxRadius && !mask[i*detrek::size1+j])
 		{
 			oneDimData[r][1] += data[i*detrek::size1+j];
 			oneDimData[r][2] += 1;

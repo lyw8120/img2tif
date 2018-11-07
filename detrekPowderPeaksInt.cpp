@@ -39,8 +39,34 @@ int main (int argc, char ** argv)
        // rigakuImg.printPowderData();
         
         vector<float> slopeValues;
-        slope(rigakuImg.powderData, slopeValues);
+	//powderData is contains the d value and corresponding intensity value.
+        calculateSlope(rigakuImg.powderData, slopeValues);
 
+	vector<int> peaksPosition;
+	findPeaks(rigakuImg.powderData, peaksPosition);
+	
+	vector<vector<int>> peakTwoEnds;
+	findPeaksRange(slopeValues, peaksPosition, peakTwoEnds);
+
+	vector<float> area;
+	integralForPeaks(rigakuImg.powderData, peakTwoEnds, area);
+	
+	string outSlope = baseName + "_slope.txt";
+	writeVec2File<float>(slopeValues, outSlope.c_str());
+		
+	string outPeaks = baseName + "_peaks.txt";
+	writeVec2File<int>(peaksPosition, outPeaks.c_str());
+
+	string outPowderData = baseName + "_powderData.txt";
+	writePoints2File<float>(rigakuImg.powderData, outPowderData.c_str());
+	
+	string outPeaksRange = baseName + "_peaksRange.txt";
+	writePoints2File<int>(peakTwoEnds, outPeaksRange.c_str());
+
+	string outArea = baseName + "_area.txt";
+	writeVec2File<float>(area, outArea.c_str());
+	
+	
 
 
 	return 0;
