@@ -75,12 +75,17 @@ int main (int argc, char ** argv)
         calculateSlope(oneDimPowder, slopeValues);
 
 	vector<int> peaksPosition;
-	vector<float> peaksRes;
-	findPeaks(oneDimPowder, peaksPosition, std);
+	vector<vector<float>> peaksRes;
+    //gap from 384 to 416
+	findPeaks(oneDimPowder, peaksPosition, beamY, 384,  std);
 	
 	for (int i=0; i<peaksPosition.size(); i++)
 	{
-		float tmp = calculateDValue(peaksPosition[i], pixelSize, distance, wavelength);
+        vector<float> tmp(3,0);
+		float d = calculateDValue(peaksPosition[i], pixelSize, distance, wavelength);
+        tmp[0] = peaksPosition[i];
+        tmp[1] = d;
+        tmp[2] = 1/d;
 		peaksRes.push_back(tmp);
 	}
 	
@@ -88,7 +93,7 @@ int main (int argc, char ** argv)
 	writeVec2File<float>(slopeValues, outSlope.c_str());
 		
 	string outPeaks = baseName + "_peaks.txt";
-	writeVec2File<float>(peaksRes, outPeaks.c_str());
+	writeMatrix2File<float>(peaksRes, outPeaks.c_str());
 
 	writePoints2File<float>(oneDimPowder, outFileName.c_str());
 	writeTifImage(mask, outMaskName, w, h);

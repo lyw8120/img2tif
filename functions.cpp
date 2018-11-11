@@ -24,10 +24,12 @@ void calculateSlope(const vector<vector<float>> &in, vector<float> & out)
  * find the peaks using the standard error in the local range (5).
  */
 
-int findPeaks(vector<vector<float>> & in, vector<int> & out, float stdLimit)
+int findPeaks(vector<vector<float>> & in, vector<int> & out, float beamY, int gapStart, float stdLimit)
 {
 	//start from 25
-	for (int i=25; i<in.size()-3; i++)
+    int beamRadius = ceil(beamY - gapStart);
+    cout<<"peak positions"<<endl;
+	for (int i=beamRadius; i<in.size()-3; i++)
 	{
 		//float mean = (in[i][1] +  in[i+1][1] + in[i+2][1] + in[i+3][1] + in[i+4][1])/5;
 		float mean = (in[i][1] +  in[i+1][1] + in[i+2][1])/3;

@@ -133,6 +133,27 @@ cout<<"The scan wave length: "<<detrek::scanWaveLength<<endl;
 cout<<"The byte order is : "<<detrek::byteOrder<<endl;
 }
 
+
+float detrek::getBeamY()
+{
+    return detrek::beamY;
+}
+
+float detrek::getWaveLength()
+{
+    return detrek::scanWaveLength;
+}
+
+float detrek::getDistance()
+{
+    return detrek::distance;
+}
+
+float detrek::getPixelSize()
+{
+    return detrek::pixelSizeX;
+}
+
 void detrek::readImage()
 {
 	FILE * myfile=fopen(detrek::file.c_str(), "rb");
@@ -223,6 +244,22 @@ void detrek::maskBeamAndGap()
 		if(data[i*detrek::size1+j] <3)
 		{
 			mask[i*detrek::size1+j] = true;
+		}
+	}
+    
+    int beamRadius = detrek::beamY - 195;
+    int yUp = detrek::beamY-beamRadius+1;
+	int yDown = detrek::beamY+beamRadius+1;
+	int xLeft = detrek::beamX - beamRadius+1;
+	int xRight = detrek::beamX + beamRadius+1;
+
+	for(int i=yUp; i<yDown; i++)
+	for(int j=xLeft; j<xRight; j++)
+	{
+		float r=sqrt((j-beamX)*(j-beamX)+(i-beamY)*(i-beamY));
+		if (r <= beamRadius)
+		{
+			mask[i*detrek::size1+j] = 1;
 		}
 	}
 }

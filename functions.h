@@ -22,7 +22,8 @@ using namespace std;
 
 void calculateSlope(const vector<vector<float>> & in, vector<float> & out);
 //int peakEnds(vector<float> &in, vector<vector<int>> &out);
-int findPeaks(vector<vector<float>> & in, vector<int> & out, float stdLimit);
+//int findPeaks(vector<vector<float>> & in, vector<int> & out, float stdLimit);
+int findPeaks(vector<vector<float>> & in, vector<int> & out, float beamY, int gapStart, float stdLimit);
 int findPeaksRange(vector<float> & in, vector<int> & peaks, vector<vector<int>> & peaksRange);
 int integralForPeaks(vector<vector<float>> & in, vector<vector<int>> &peaksRange, vector<float>& peaksArea);
 string detectTiffType(string filein);
@@ -61,6 +62,27 @@ int writePoints2File( vector<vector<T>> &vec2, const char * filename)
 	return 0;
 
 }
+template <class T>
+int writeMatrix2File( vector<vector<T>> &matrix, const char * filename)
+{
+	ofstream fout(filename);
+	if(!fout)
+	{
+		cout<<"File cannot be open!"<<endl;
+	}
+	for (int i=0 ;i<matrix.size(); i++)
+    {
+	    for (int j=0 ;j<matrix[i].size(); j++)
+	    {
+		    fout<<matrix[i][j]<< "\t";
+    	}
+        fout<<endl;
+    }
+	fout.close();
+	return 0;
+
+}
+
 
 template <class T> vector<T> ReadTiff(string fileIn, uint32 &w, uint32 & h)
 {
@@ -120,12 +142,14 @@ void writeTifImage(vector<T> & data, string &outfile, uint32 & w, uint32 & h)
 template<class T> 
 void maskBeamAndGap(vector<T> &data, vector<int> &mask, uint32 w, uint32 h, float beamX , float beamY)
 {
+    //the horizental gap of th two detectors (hypix 3000)
 	for (int i=384; i<416; i++)
 	for (int j=0; j<w; j++)
 	{
 		mask[i*w+j] = 1;
 	}
 
+    //the beam stop
 	for (int i=0; i<beamY; i++)
 	for (int j=380; j<392; j++)
 	{
@@ -155,10 +179,9 @@ void maskBeamAndGap(vector<T> &data, vector<int> &mask, uint32 w, uint32 h, floa
 template<class T>
 vector<vector<float>> convert2DTo1D(vector<T> & data, float & beamX, float & beamY, vector<int> & mask, uint32 & w, uint32 & h, float & pixelSize, float & distance, float & wavelength)
 {
-	//int maxRadius = round(sqrt(beamX*beamX+beamY*beamY));
-	int maxRadius = 0;
-	beamX > beamY ? maxRadius = ceil(beamX): maxRadius = ceil(beamY);
-	//cout << maxRadius<<endl;
+	int maxRadius = round(sqrt(beamX*beamX+beamY*beamY));
+	//int maxRadius = 0;
+	//beamX > beamY ? maxRadius = ceil(beamX): maxRadius = ceil(beamY);
 	int r = 0;
 	vector<vector<float>> oneDimData(maxRadius+1,vector<float>(3,0));
 
@@ -166,7 +189,6 @@ vector<vector<float>> convert2DTo1D(vector<T> & data, float & beamX, float & bea
 	for (int j=0; j<w; j++)
 	{
 		r = round(sqrt((j-beamX)*(j-beamX) + (i-beamY) * (i-beamY)));
-		//r must be larger than 25, which to skip the beam center.
 		if (r <= maxRadius && mask[i*w+j]==0)
 		{
 			oneDimData[r][1] += (int)data[i*w+j];
@@ -216,6 +238,7 @@ void intensityInvert(vector<T> &data)
 	T min = 0;
 	T max = 0;
 	findMaxMin<T>(data, max, min);
+    cout<<"max value: "<<max<<" min value: "<<min<<endl;
 	for (int i=0;i<data.size(); i++)
 	{
 		data[i] -= min;

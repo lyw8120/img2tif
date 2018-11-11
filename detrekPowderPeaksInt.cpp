@@ -12,9 +12,9 @@
 
 int main (int argc, char ** argv)
 {
-	if (argc != 2)
+	if (argc != 3)
 	{
-		std::cout<<"I need the detrek image file name, thank you."<<std::endl;
+		std::cout<<"I need the detrek image file name and std for peak determination, thank you."<<std::endl;
 		exit(1);
 	}
 
@@ -28,7 +28,8 @@ int main (int argc, char ** argv)
 
 	string baseName=fileName.substr(0, position);
 	string outFileName=baseName + ".tif";
-	
+	float std = atof(argv[2]);
+
 	std::cout<<"This program can convert the rigaku two dimensional diffraction image to tiff format image."<<std::endl;
 	std::cout<<"Have fun with this program, good luck to you. from Yao-Wang. "<<std::endl;
 
@@ -43,8 +44,26 @@ int main (int argc, char ** argv)
         calculateSlope(rigakuImg.powderData, slopeValues);
 
 	vector<int> peaksPosition;
-	findPeaks(rigakuImg.powderData, peaksPosition, 1);
-	
+    vector<vector<float>> peaksRes;
+    //the gap of detector start from 195 and end at 211.
+    int gapStart=195;
+    float beamY = rigakuImg.getBeamY();
+	findPeaks(rigakuImg.powderData, peaksPosition, beamY, gapStart, std);
+    
+    float pixelsize = rigakuImg.getPixelSize();
+    float distance = rigakuImg.getDistance();
+    float wavelength = rigakuImg.getWaveLength();
+
+    for (int i=0; i<peaksPosition.size(); i++)
+	{
+        vector<float> tmp(3,0);
+		float d = calculateDValue(peaksPosition[i], pixelsize, distance, wavelength);
+        tmp[0] = peaksPosition[i];
+        tmp[1] = d;
+        tmp[2] = 1/d;
+		peaksRes.push_back(tmp);
+	}
+
 	vector<vector<int>> peakTwoEnds;
 	findPeaksRange(slopeValues, peaksPosition, peakTwoEnds);
 
@@ -55,7 +74,8 @@ int main (int argc, char ** argv)
 	writeVec2File<float>(slopeValues, outSlope.c_str());
 		
 	string outPeaks = baseName + "_peaks.txt";
-	writeVec2File<int>(peaksPosition, outPeaks.c_str());
+//	writeVec2File<int>(peaksPosition, outPeaks.c_str());
+    writeMatrix2File<float>(peaksRes, outPeaks.c_str());
 
 	string outPowderData = baseName + "_powderData.txt";
 	writePoints2File<float>(rigakuImg.powderData, outPowderData.c_str());

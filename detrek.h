@@ -111,6 +111,18 @@ class detrek {
 		
 		//print image header inforamtion
 		void printHeaderInfo();
+
+        //get the value of beamY
+        float getBeamY();
+
+        //get the wavelength
+        float getWaveLength();
+
+        //get the distance
+        float getDistance();
+
+        //get the pixelsize
+        float getPixelSize();
 	
 		//read rigaku image 
 		void readImage();
