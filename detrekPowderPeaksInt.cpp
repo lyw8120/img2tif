@@ -43,7 +43,7 @@ int main (int argc, char ** argv)
         calculateSlope(rigakuImg.powderData, slopeValues);
 
 	vector<int> peaksPosition;
-	findPeaks(rigakuImg.powderData, peaksPosition);
+	findPeaks(rigakuImg.powderData, peaksPosition, 1);
 	
 	vector<vector<int>> peakTwoEnds;
 	findPeaksRange(slopeValues, peaksPosition, peakTwoEnds);

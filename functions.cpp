@@ -24,18 +24,26 @@ void calculateSlope(const vector<vector<float>> &in, vector<float> & out)
  * find the peaks using the standard error in the local range (5).
  */
 
-int findPeaks(vector<vector<float>> & in, vector<int> & out)
+int findPeaks(vector<vector<float>> & in, vector<int> & out, float stdLimit)
 {
 	//start from 25
-	for (int i=25; i<in.size()-5; i++)
+	for (int i=25; i<in.size()-3; i++)
 	{
-		float mean = (in[i][1] +  in[i+1][1] + in[i+2][1] + in[i+3][1] + in[i+4][1])/5;
-		float std = sqrt(pow((in[i][1]-mean),2) +  pow((in[i+1][1]-mean),2) + pow((in[i+2][1]-mean),2) + pow((in[i+3][1]-mean),2) + pow((in[i+4][1]-mean),2)/4);
+		//float mean = (in[i][1] +  in[i+1][1] + in[i+2][1] + in[i+3][1] + in[i+4][1])/5;
+		float mean = (in[i][1] +  in[i+1][1] + in[i+2][1])/3;
+	//	float std = sqrt(pow((in[i][1]-mean),2) +  pow((in[i+1][1]-mean),2) + pow((in[i+2][1]-mean),2) + pow((in[i+3][1]-mean),2) + pow((in[i+4][1]-mean),2)/4);
+		float std = sqrt(pow((in[i][1]-mean),2) +  pow((in[i+1][1]-mean),2) + pow((in[i+2][1]-mean),2)/2);
 		//if std > 1 and the middle element is the maximum.
-		if ( std> 1 && in[i+2][1]>in[i+1][1] && in[i+2][1]>in[i+3][1] && in[i+1][1]>in[i][1] && in[i+3][1]>in[i+4][1])
+	//	if ( std> stdLimit && in[i+2][1]>in[i+1][1] && in[i+2][1]>in[i+3][1] && in[i+1][1]>in[i][1] && in[i+3][1]>in[i+4][1])
+		if ( std> stdLimit && in[i+1][1]>in[i][1] && in[i+1][1]>in[i+2][1])
 		{
-			out.push_back(i+2);
-			i += 5;
+			//out.push_back(i+2);
+			out.push_back(i+1);
+			//cout<<i+2<<endl;
+			cout<<i+1<<endl;
+			//cout << in[i][1]<<" "<<in[i+1][1]<<" "<<in[i+2][1]<<" "<<in[i+3][1]<<" "<<in[i+4][1]<<endl;
+			//i +=4;
+			i += 2;
 		}
 	}
 		
@@ -75,7 +83,9 @@ int findPeaksRange(vector<float> & in, vector<int> & peaks, vector<vector<int>> 
 {
 	for (int i=0; i<peaks.size(); i++)
 	{
-		int tmp = peaks[i];
+		//since the number of element in slope data is less 1 than the number of powder data.
+		int tmp = peaks[i]+1;
+	
 		vector<int> point(2,0);
 		for (int j=tmp; j>0; j--)
 		{
@@ -114,4 +124,54 @@ int integralForPeaks(vector<vector<float>> & in, vector<vector<int>> &peaksRange
 	
 	return 0;
 
+}
+
+string detectTiffType(string filein)
+{
+	TIFF * tif = TIFFOpen(filein.c_str(), "r");
+	int b = 8;
+	string tifftype;
+	if (tif)
+	{
+		TIFFGetField(tif, TIFFTAG_BITSPERSAMPLE, &b);
+	}
+	if (b == 8)
+	{
+		tifftype="char";
+	}
+	else if(b == 16)
+	{
+		tifftype = "short";
+	}
+	else if(b== 32)
+	{
+		tifftype ="int";
+	}
+	else
+	{
+		cout<<"I have no idea about the tif image bitsample"<<endl;
+	}
+	TIFFClose(tif);
+	return tifftype;
+}
+
+
+
+float calculateDValue(int &numOfpixels, float & pixelSize, float & distance, float & wavelength)
+{
+	float d=0.0;
+	double theta = 0.0;
+	theta = atan(numOfpixels * pixelSize / distance)/2;
+	d = wavelength / (2 * sin(theta));
+	return d;
+}
+
+void vectorOfCharToInt(vector<char> & in, vector<int> & out)
+{
+	vector<int> tmp(in.begin(), in.end());
+	for (int i=0; i<out.size(); i++)
+	{
+		tmp[i] -= '0';
+	}
+	out = tmp;
 }
