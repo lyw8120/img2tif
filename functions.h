@@ -239,10 +239,12 @@ void intensityInvert(vector<T> &data)
 	T max = 0;
 	findMaxMin<T>(data, max, min);
     cout<<"max value: "<<max<<" min value: "<<min<<endl;
-	for (int i=0;i<data.size(); i++)
-	{
-		data[i] -= min;
-	}
+    for (int i=0;i<data.size(); i++)
+    {
+    	data[i] =max -data[i];
+       // data[i] = abs(data[i]);
+    }
+
 }	
 
 

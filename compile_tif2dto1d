@@ -1,0 +1,2 @@
+g++ -g -o tiff2Dto1d tiff2Dto1D.cpp functions.cpp -std=c++11 -ltiff
+

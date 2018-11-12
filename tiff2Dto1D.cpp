@@ -34,13 +34,15 @@ int main (int argc, char ** argv)
 	string baseName=fileName.substr(0, position);
 	string outFileName=baseName + ".1d";
 	string outMaskName=baseName + "_mask.tif";
+	string outInvName=baseName + "_inv.tif";
 	
 	std::cout<<"This program can convert the tiff format two dimensional diffraction image to 1D data."<<std::endl;
 	std::cout<<"Have fun with this program, good luck to you. from Yao-Wang. "<<std::endl;
 
 	string tiffType=detectTiffType(fileName);
 	
-	vector<int> data;
+	//vector<int> data;
+	vector<uint32> data;
 	vector<vector<float>> oneDimPowder;
 	uint32 w = 0;
 	uint32 h = 0;
@@ -48,14 +50,15 @@ int main (int argc, char ** argv)
 	if ( tiffType == "char")
 	{
 		cout<<"the tif data type: "<<tiffType<<endl;
-		vector<char> tmp;
-		tmp = ReadTiff<char>(fileName, w, h);
-		vectorOfCharToInt(tmp, data);
+		//vector<char> tmp;
+		//tmp = ReadTiff<char>(fileName, w, h);
+	//	data = ReadTiff<uint32>(fileName, w, h);
+		//vectorOfCharToInt(tmp, data);
 	}
 	else if(tiffType== "short" || tiffType == "int")
 	{
 		cout<<"the tif data type: "<<tiffType<<endl;
-		data = ReadTiff<int>(fileName, w, h);
+	//	data = ReadTiff<uint32>(fileName, w, h);
 
 	}
 	else
@@ -64,15 +67,17 @@ int main (int argc, char ** argv)
 		exit(1);
 	}
 
-	intensityInvert<int>(data);
+	data = ReadTiff<uint32>(fileName, w, h);
+    cout<<data[311*w+314]<<endl;
+	intensityInvert<uint32>(data);
 	vector<int> mask(data.size(), 0);
-	maskBeamAndGap<int>(data,mask, w, h, beamX, beamY);
-	oneDimPowder = convert2DTo1D<int>(data, beamX, beamY, mask, w, h, pixelSize, distance, wavelength);
+	maskBeamAndGap<uint32>(data,mask, w, h, beamX, beamY);
+	oneDimPowder = convert2DTo1D<uint32>(data, beamX, beamY, mask, w, h, pixelSize, distance, wavelength);
 	
 
-        vector<float> slopeValues;
-	//powderData is contains the d value and corresponding intensity value.
-        calculateSlope(oneDimPowder, slopeValues);
+    vector<float> slopeValues;
+  //  powderData is contains the d value and corresponding intensity value.
+    calculateSlope(oneDimPowder, slopeValues);
 
 	vector<int> peaksPosition;
 	vector<vector<float>> peaksRes;
@@ -88,7 +93,6 @@ int main (int argc, char ** argv)
         tmp[2] = 1/d;
 		peaksRes.push_back(tmp);
 	}
-	
 	string outSlope = baseName + "_slope.txt";
 	writeVec2File<float>(slopeValues, outSlope.c_str());
 		
@@ -96,7 +100,8 @@ int main (int argc, char ** argv)
 	writeMatrix2File<float>(peaksRes, outPeaks.c_str());
 
 	writePoints2File<float>(oneDimPowder, outFileName.c_str());
-	writeTifImage(mask, outMaskName, w, h);
+	writeTifImage<uint32>(data, outInvName, w, h);
+	writeTifImage<int>(mask, outMaskName, w, h);
 
 	return 0;
 }
