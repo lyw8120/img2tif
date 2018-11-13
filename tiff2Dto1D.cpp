@@ -35,6 +35,8 @@ int main (int argc, char ** argv)
 	string outFileName=baseName + ".1d";
 	string outMaskName=baseName + "_mask.tif";
 	string outInvName=baseName + "_inv.tif";
+	string outpeaksRange=baseName + "_peaksRange.txt";
+    string outpeaksArea=baseName + "_peaksArea.txt";
 	
 	std::cout<<"This program can convert the tiff format two dimensional diffraction image to 1D data."<<std::endl;
 	std::cout<<"Have fun with this program, good luck to you. from Yao-Wang. "<<std::endl;
@@ -83,14 +85,22 @@ int main (int argc, char ** argv)
 	vector<vector<float>> peaksRes;
     //gap from 384 to 416
 	findPeaks(oneDimPowder, peaksPosition, beamY, 384,  std);
+
+    vector<vector<int>> peakTwoEnds;
+    findPeaksRange(slopeValues, peaksPosition, peakTwoEnds);
+
+    vector<float> area;
+    integralForPeaks(oneDimPowder, peakTwoEnds, area);
+
 	
 	for (int i=0; i<peaksPosition.size(); i++)
 	{
-        vector<float> tmp(3,0);
+        vector<float> tmp(4,0);
 		float d = calculateDValue(peaksPosition[i], pixelSize, distance, wavelength);
         tmp[0] = peaksPosition[i];
         tmp[1] = d;
         tmp[2] = 1/d;
+        tmp[3] = oneDimPowder[peaksPosition[i]][1];
 		peaksRes.push_back(tmp);
 	}
 	string outSlope = baseName + "_slope.txt";
@@ -100,6 +110,9 @@ int main (int argc, char ** argv)
 	writeMatrix2File<float>(peaksRes, outPeaks.c_str());
 
 	writePoints2File<float>(oneDimPowder, outFileName.c_str());
+	writePoints2File<int>(peakTwoEnds, outpeaksRange.c_str());
+	writeVec2File<float>(area, outpeaksArea.c_str());
+
 	writeTifImage<uint32>(data, outInvName, w, h);
 	writeTifImage<int>(mask, outMaskName, w, h);
 

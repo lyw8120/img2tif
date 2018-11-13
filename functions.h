@@ -16,6 +16,7 @@
 #include <vector>
 #include <fstream>
 #include <tiffio.h>
+#include <algorithm>
 
 
 using namespace std;
@@ -179,11 +180,12 @@ void maskBeamAndGap(vector<T> &data, vector<int> &mask, uint32 w, uint32 h, floa
 template<class T>
 vector<vector<float>> convert2DTo1D(vector<T> & data, float & beamX, float & beamY, vector<int> & mask, uint32 & w, uint32 & h, float & pixelSize, float & distance, float & wavelength)
 {
-	int maxRadius = round(sqrt(beamX*beamX+beamY*beamY));
-	//int maxRadius = 0;
-	//beamX > beamY ? maxRadius = ceil(beamX): maxRadius = ceil(beamY);
+//	int maxRadius = round(sqrt(beamX*beamX+beamY*beamY));
+	int maxRadius = 0;
+	beamX > beamY ? maxRadius = ceil(beamY): maxRadius = ceil(beamX);
 	int r = 0;
 	vector<vector<float>> oneDimData(maxRadius+1,vector<float>(3,0));
+//	vector<vector<float>> medianData(maxRadius+1,vector<float>());
 
 	for (int i=0; i<h; i++)
 	for (int j=0; j<w; j++)
@@ -191,18 +193,38 @@ vector<vector<float>> convert2DTo1D(vector<T> & data, float & beamX, float & bea
 		r = round(sqrt((j-beamX)*(j-beamX) + (i-beamY) * (i-beamY)));
 		if (r <= maxRadius && mask[i*w+j]==0)
 		{
-			oneDimData[r][1] += (int)data[i*w+j];
+			oneDimData[r][1] += data[i*w+j];
 			oneDimData[r][2] += 1;
+  //          medianData[r].push_back(data[i*w+j]);
 		}
 	
 	}
+
+//    for (int i=0; i<oneDimData.size(); i++)
+  //  {
+    //    oneDimData[i][1] /= oneDimData[i][2];
+   // }
+
+//    for (int i=0; i<(maxRadius+1); i++)
+  //  {
+    //    vector<float> tmp = medianData[i];
+      //  std::sort(tmp.begin(), tmp.end());
+        //int middle = ceil(tmp.size()/2);
+      //  float sum = 0.0;
+       // for (int i=middle; i<tmp.size(); i++)
+        //{
+         //   sum +=tmp[i];
+       // }
+    //    oneDimData[i][0] = 1/calculateDValue(i, pixelSize, distance, wavelength);
+      //  oneDimData[i][1]=sum;//- oneDimData[i][1];
+    }
 	
 	for (int i=0; i<oneDimData.size(); i++)
 	{
-                if(oneDimData[i][1]>0)
-                {
-	            oneDimData[i][1] /= oneDimData[i][2];
-                }
+            //   if(oneDimData[i][1]>0)
+            //    {
+	          //  oneDimData[i][1] /= oneDimData[i][2];
+               // }
                 oneDimData[i][0] = 1/calculateDValue(i, pixelSize, distance, wavelength);
 
 	} 
