@@ -56,11 +56,12 @@ int main (int argc, char ** argv)
 
     for (int i=0; i<peaksPosition.size(); i++)
 	{
-        vector<float> tmp(3,0);
+        vector<float> tmp(4,0);
 		float d = calculateDValue(peaksPosition[i], pixelsize, distance, wavelength);
         tmp[0] = peaksPosition[i];
         tmp[1] = d;
         tmp[2] = 1/d;
+        tmp[3] = 2*asin(wavelength/(2*d))*180/3.1415926;
 		peaksRes.push_back(tmp);
 	}
 

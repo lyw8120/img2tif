@@ -275,9 +275,9 @@ float detrek::calculateDValue(int numOfpixels)
 
 void detrek::convert()
 {
-	//int maxRadius = round(sqrt(beamX*beamX+beamY*beamY));
-	int maxRadius = 0;
-	beamX > beamY ? maxRadius = ceil(beamX): maxRadius = ceil(beamY);
+	int maxRadius = round(sqrt(beamX*beamX+beamY*beamY));
+	//int maxRadius = 0;
+	//beamX > beamY ? maxRadius = ceil(beamX): maxRadius = ceil(beamY);
 	//cout << maxRadius<<endl;
 	int r = 0;
 	vector<vector<float>> oneDimData(maxRadius+1,vector<float>(3,0));

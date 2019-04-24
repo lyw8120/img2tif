@@ -217,7 +217,7 @@ vector<vector<float>> convert2DTo1D(vector<T> & data, float & beamX, float & bea
        // }
     //    oneDimData[i][0] = 1/calculateDValue(i, pixelSize, distance, wavelength);
       //  oneDimData[i][1]=sum;//- oneDimData[i][1];
-    }
+   // }
 	
 	for (int i=0; i<oneDimData.size(); i++)
 	{
