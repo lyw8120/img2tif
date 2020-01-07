@@ -1,10 +1,8 @@
-it is a small program fordetrek type image conversion.
-normally the data collected by the rigaku x-ray diffraction device is a detrek image, while this kind of data cannot be read by the imagej or other programs when you were trying to colleced powder diffraction  data.
+it is a small program for detrek type image conversion.
+normally the data collected by the rigaku x-ray diffraction device is a detrek image,  which cannot be read by the imagej or other programs.
 
-Hence, I am going to develop a program that can convert the image to tif  format.
-
-
-by 
+Hence, I developed a program that can convert the image to tif  format.
+ 
 
 Yao-Wang Li
 2018-10-14
