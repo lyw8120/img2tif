@@ -190,7 +190,7 @@ void detrek::readImage()
 
 	else
 	{
-		fprintf(stderr, "the data type is not supported!\n");	
+		fprintf(stderr, "the data type %d is not supported!\n", detrek::headerBytes);	
 		exit(1);
 		fclose(myfile);	 
 	}

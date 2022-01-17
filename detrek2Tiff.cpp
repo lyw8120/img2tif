@@ -18,9 +18,11 @@ int main (int argc, char ** argv)
 
 	string fileName=string(argv[1]);
 	int position=fileName.find_last_of(".");
-	if (fileName.substr(position+1)!="img")
+    string extension = fileName.substr(position + 1);
+
+	if (extension != "img")
 	{
-		std::cout<<"it is not an image with the extension 'img'."<<std::endl;
+		printf("this extension %s, is not an image with the extension 'img'.\n", extension.c_str());
 		exit(2);
 	}
 
