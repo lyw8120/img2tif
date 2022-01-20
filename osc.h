@@ -11,8 +11,12 @@
 #define OSC_H_
 
 #include <iostream>
+#include <string>
+#include <fstream>
 
-struct osc {
+using namespace std;
+
+struct oscHeader {
     char rigakuName[10];        //what kind of instrument
     char version[10];           //which version 
     char crystalName[20];       //crystal name
@@ -66,7 +70,66 @@ struct osc {
     long lineNum;               //starting line number
     long ipNum;                 //IP number
     float hiloRatio;            //photomultiplier output hi/lo ratio
+    float fadingStart;          //fading time, end of exposure to start of read
+    float fadingEnd;            //fading time, end of exposure to end of read
+    char host[10];              //type of computer, (IRIS, VAX) ==> endian
+    char ip[10];                //type of ip
+    long directionX;            //horizontal scanning code; 0: left -> right, 1: right -> left
+    long directionY;            //vertical scanning code; 0: down -> up; 1: up -> down
+    long directionZ;            //front/back scanning code; 0: front; 1: back
+    float shift;                //pixel shift, R-AXIS V
+    float ineo;                 //intensity ratio E/O R-AXIS v
+    long magicNum;              //magic number to indicate next values are legit
+    long numOfgonioAxis;        //number of goniometer axes
+    float gonioVec[5][3];       //goniometer axis vectors
+    float gonioStartAngle[5];   //start angles for each of 5 axis
+    float gonioEndAngle[5];     //end angles for each of 5 axis
+    float goioShift[5];         //offset values for each of 5 axis
+    long scanAxis;              //which axis is the scan axis
+    char gonioAxisName[40];     //Names of the axes (space or comma separated?)
+
+    //the following is program dependent.
+    char file[16];
+    char cmnt[20];
+    char smpl[20];
+    long iext;
+    long reso;
+    long save;
+    long dint;
+    long byte;
+    long init;
+    long ipus;
+    long dexp;
+    long expn;
+    long posx[20];
+    long posy[20];
+    int xray;
+    char res5[768];             //reserved space
 
 };
+
+//constant variable
+const int headerLength = 1400;
+
+class osc 
+{
+    private:
+        string _filename;
+        oscHeader _header;
+    public:
+        osc(string filename, bool all = true);
+        int readHeader(ifstream & in);
+        int readData(ifstream & in);
+        int printHeaderInfo();
+        unsigned short swapv(const unsigned short v);
+        long swapv(const long v);
+        float swapv(const float v);
+        int swapHeader(oscHeader & header);
+
+        ~osc();
+
+
+};
+
 #endif
 
