@@ -35,7 +35,38 @@ struct osc {
     float m2theta;              //monochromator two theta
     char collimator[20];        //collimator size and type
     char filter[4];             //filter type, like Ni
-    float cammera
+    float cameraLength;         //camera length
+    float current;              //generator current
+    float voltage;              //generator voltage
+    char focusInfo[12];         //focus information
+    char xrayMemo[80];          //xray memo
+    long shapeType;             //IP shape, 0=flat, 1=cylinder
+    float weissenbergOsci;      //weissenberg oscillation 1
+    char reservedSpace2[56];    //reserved space 2
+    char mAxisCloseSpindleAxis; //crystal mount axis close to spindle axis
+    char mAxisCloseBeamAxis;    //crystal mount axis close to beam axis
+    float phi0;                 //datum phi angle(degree)
+    float phiStart;             //phi oscillation start angle (degree)
+    float phiEnd;               //phi oscillation end angle (degree)
+    long frameNum;              //frame number
+    float exposureTime;         //exposure time
+    float beamX;                //direct beam X position
+    float beamY;                //direct beam Y position
+    float omga;                 //goniostat angle omega
+    float chiAngle;             //goniostat angle chi
+    float gonio2theta;          //goniostat angle two theta
+    float spindleAngle;         //spindle inclination angle
+    char scanSpace[204];        //reserved space for future use, is used for storing the scan template information.
+    long pixelsX;               //number of pixel in X direction
+    long pixelsZ;               //number of pixel in Z direction
+    float pixelSizeX;           //pixel size in X direction
+    float pixelSizeZ;           //pixel size in Z direction
+    long recordLength;          //record length(bytes)
+    long recordNum;             //number of records in image
+    long lineNum;               //starting line number
+    long ipNum;                 //IP number
+    float hiloRatio;            //photomultiplier output hi/lo ratio
+
 };
 #endif
 
