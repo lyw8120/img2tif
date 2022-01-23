@@ -13,8 +13,15 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <sstream>
 
 using namespace std;
+
+struct axis {
+    axis():start(0.0), end(0.0), offset(0.0),name(""){}
+    double start, end, offset;
+    string name;
+};
 
 struct oscHeader {
     char rigakuName[10];        //what kind of instrument
@@ -84,7 +91,7 @@ struct oscHeader {
     float gonioVec[5][3];       //goniometer axis vectors
     float gonioStartAngle[5];   //start angles for each of 5 axis
     float gonioEndAngle[5];     //end angles for each of 5 axis
-    float goioShift[5];         //offset values for each of 5 axis
+    float gonioShift[5];         //offset values for each of 5 axis
     long scanAxis;              //which axis is the scan axis
     char gonioAxisName[40];     //Names of the axes (space or comma separated?)
 

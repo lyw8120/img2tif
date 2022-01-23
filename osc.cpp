@@ -116,7 +116,133 @@ int osc::printHeaderInfo()
     fprintf(stdout, "start phi angle: %f\n", _header.phiStart);
     fprintf(stdout, "end phi angle: %f\n", _header.phiEnd);
     fprintf(stdout, "frame number: %d\n", _header.frameNum);
+    fprintf(stdout, "exposure time: %f\n", _header.exposureTime);
+    fprintf(stdout, "beam X: %f\n", _header.beamX);
+    fprintf(stdout, "beam Y: %f\n", _header.beamY);
+    fprintf(stdout, "goniostat omga angle: %f\n", _header.omga);
+    fprintf(stdout, "goniostat chi angle: %f\n", _header.chiAngle);
+    fprintf(stdout, "goniostat two theta angle: %f\n", _header.gonio2theta);
+    fprintf(stdout, "spindle inclination angle: %f\n", _header.spindleAngle);
+    fprintf(stdout, "template information: %s\n", _header.scanSpace);
+    fprintf(stdout, "pixel number in X: %ld\n", _header.pixelsX);
+    fprintf(stdout, "pixel number in Z: %ld\n", _header.pixelsZ);
+    fprintf(stdout, "pixel size in X: %f\n", _header.pixelSizeX);
+    fprintf(stdout, "pixel size in Y: %f\n", _header.pixelSizeZ);
+    fprintf(stdout, "record length(bytes): %ld\n", _header.recordLength);
+    fprintf(stdout, "number of records: %ld\n", _header.recordNum);
+    fprintf(stdout, "starting: %ld\n", _header.lineNum);
+    fprintf(stdout, "IP number: %ld\n", _header.ipNum);
+    fprintf(stdout, "photomultiplier output hi/lo ratio: %f\n", _header.hiloRatio);
+    fprintf(stdout, "fade time (to start of read): %f\n", _header.fadingStart);
+    fprintf(stdout, "fade time (to end of read): %f\n", _header.fadingEnd);
+    fprintf(stdout, "host type/endian: %s\n", _header.host);
+    fprintf(stdout, "IP type: %s\n", _header.ip);
+    if (_header.directionX == 0)
+    {
+        fprintf(stdout, "horizontal scanning code: from left to right.\n");
+    }
+    else
+    {
+        fprintf(stdout, "horizontal scanning code: from right to left.\n");
+    }
 
+
+    if (_header.directionY ==  0)
+    {
+        fprintf(stdout, "vertical scanning code: from down to up.\n");
+    }
+    else
+    {
+        fprintf(stdout, "vertical scanning code: from up to down.\n");
+    }
+
+    if (_header.directionZ == 0)
+    {
+        fprintf(stdout, "front/back scanning code: front.\n");
+    }
+    else
+    {
+        fprintf(stdout, "front/back scanning code: back.\n");
+    }
+
+    fprintf(stdout, "pixel shift: %f\n", _header.shift);
+    fprintf(stdout, "even/odd intensity ratio (RAXIS V): %f\n", _header.ineo);
+
+    axis Axis[5];
+    std::string s = _header.rigakuName;
+    bool isRapid = std::string::npos != s.find("R-AXIS-CS");
+    std::string ScanAxis = "Phi";
+
+    if (_header.magicNum != 0)
+    {
+        std::istringstream is(_header.gonioAxisName);
+        for (int i=0; i< _header.numOfgonioAxis; i++)
+        {
+           is >> Axis[i].name;
+           Axis[i].start = _header.gonioStartAngle[i];
+           Axis[i].end = _header.gonioEndAngle[i];
+           Axis[i].offset = _header.gonioShift[i];
+        }
+        ScanAxis = Axis[_header.scanAxis].name;
+    }
+    else
+    {
+        Axis[0].name = "Omega";
+        Axis[2].name = "Phi";
+        if(!isRapid)
+        {
+            Axis[0].start = _header.omga;
+            Axis[0].end = _header.omga;
+            Axis[0].offset = 0.0;
+            Axis[2].start = _header.phiStart;
+            Axis[2].end = _header.phiEnd;
+            Axis[2].offset = _header.phi0;
+            ScanAxis = Axis[2].name;
+        }
+        else
+        {
+            Axis[2].start = _header.omga;
+            Axis[2].end = _header.omga;
+            Axis[2].offset = 0.0;
+            Axis[0].start = _header.phiStart;
+            Axis[0].end = _header.phiEnd;
+            Axis[0].offset = _header.phi0;
+            ScanAxis = Axis[0].name;
+        }
+    }
+
+
+    if (_header.magicNum != 0)
+    {
+        fprintf(stdout, "Instrument axis (using extended section of header)\n");
+    }
+    else
+    {
+        fprintf(stdout, "Instrument axis (using conventional section of header)\n");
+    }
+
+    fprintf(stdout, "scan axis: %s\n", ScanAxis.c_str());
+
+    for (int i = 0; i< 5 && Axis[i].name != ""; i++)
+    {
+        fprintf(stdout, "Axis name: %s\n", Axis[i].name.c_str());
+        fprintf(stdout, "Axis start: %f\n", Axis[i].start);
+        fprintf(stdout, "Axis end: %f\n", Axis[i].end);
+        fprintf(stdout, "Axis offset: %f\n", Axis[i].offset);
+    }
+
+    axis theta, dist;
+    theta.name = "2theta";
+    theta.start = _header.gonio2theta;
+    theta.end = _header.gonio2theta;
+    theta.offset = 0.0;
+    dist.name = "Distance";
+    dist.start = _header.cameraLength;
+    dist.end = _header.cameraLength;
+    dist.offset = 0.0;
+    
+    fprintf(stdout, "theta Axis name: %s; \tstart angle: %f;\t end angle: %f;\t offset: %f;\n", theta.name.c_str(), theta.start, theta.end, theta.offset);
+    fprintf(stdout, "dist Axis name: %s; \tstart angle: %f;\t end angle: %f;\t offset: %f;\n", dist.name.c_str(), dist.start, dist.end, dist.offset);
 
     return 0;
 }
